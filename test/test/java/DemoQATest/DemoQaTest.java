@@ -7,14 +7,18 @@ import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Wait;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.openqa.selenium.support.ui.ExpectedConditions.textToBe;
 
 public class DemoQaTest {
 
+    private static final String START_STOP_BUTTON = "startStopButton";
     private static final String DOUBLE_CLICK_MESSAGE = "doubleClickMessage";
     private static final String SHOW_SMALL_MODAL = "showSmallModal";
     private static final String ELEMENTS_CARD = "//div[@class='card-body']/h5[text()='Elements']";
@@ -30,6 +34,14 @@ public class DemoQaTest {
     private static final String RADIO_MENU_ITEM = ("item-2");
     private static final String YES_RADIO = "custom-control-label";
     private static final String YES_RADIO_MESSAGE = "text-success";
+    private static final String WIDGETS_CARD = "//div[@class='card-body']/h5[text()='Widgets']";
+    private static final String PROGRESS_BAR_MANU_ITEM = "//li[contains(@id, 'item-4')]//span[contains(text(), 'Progress Bar')]";
+    private static final String DYNAMIC_PROPERTIES_MENU_ITEM = "//li[contains(@id, 'item-8')]//span[contains(text(), 'Dynamic Properties')]";
+    private static final String PROGRESS_BAR = "progressBar";
+    private static final String RESET_BUTTON = "resetButton";
+    private static final String VISIBLE_AFTER_BUTTON = "visibleAfter";
+    private static final String COLOR_CHANGE_BUTTON = "colorChange";
+    private static final String COLOR_CHANGE_BUTTON_VALUE = "mt-4 text-danger btn btn-primary";
 
     WebDriver driver;
 
@@ -138,6 +150,60 @@ public class DemoQaTest {
         WebElement yesRadioMessage = wait.until(ExpectedConditions.visibilityOfElementLocated(By.className(YES_RADIO_MESSAGE)));
         String actualMessage = yesRadioMessage.getText();
         assertEquals("Yes", actualMessage);
+    }
+
+    @Test
+    void testProgressBar() {
+        WebElement widgetsCard = driver.findElement(By.xpath(WIDGETS_CARD));
+        widgetsCard.click();
+
+        WebElement progressBarMenuItem = driver.findElement(By.xpath(PROGRESS_BAR_MANU_ITEM));
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        js.executeScript("arguments[0].scrollIntoView(true)", progressBarMenuItem);
+        progressBarMenuItem.click();
+
+        WebElement startStopButton = driver.findElement(By.id(START_STOP_BUTTON));
+        startStopButton.click();
+
+        Wait<WebDriver> wait = new WebDriverWait(driver, Duration.ofSeconds(11));
+        wait.until(textToBe(By.id(PROGRESS_BAR), "100%"));
+
+        WebElement resetButton = driver.findElement(By.id(RESET_BUTTON));
+        assertTrue(resetButton.isDisplayed());
+    }
+
+    @Test
+    void testWaitButton() {
+        WebElement elementCard = driver.findElement(By.xpath(ELEMENTS_CARD));
+        elementCard.click();
+
+        WebElement dynamicPropertiesMenuItem = driver.findElement(By.xpath(DYNAMIC_PROPERTIES_MENU_ITEM));
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        js.executeScript("arguments[0].scrollIntoView(true)", dynamicPropertiesMenuItem);
+        dynamicPropertiesMenuItem.click();
+
+        Wait<WebDriver> wait = new WebDriverWait(driver, Duration.ofSeconds(6));
+        WebElement visibilityAfterButton = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id(VISIBLE_AFTER_BUTTON)));
+
+        assertTrue(visibilityAfterButton.isDisplayed());
+    }
+
+    @Test
+    void testColorChange() {
+        WebElement elementCard = driver.findElement(By.xpath(ELEMENTS_CARD));
+        elementCard.click();
+
+        WebElement dynamicPropertiesMenuItem = driver.findElement(By.xpath(DYNAMIC_PROPERTIES_MENU_ITEM));
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        js.executeScript("arguments[0].scrollIntoView(true)", dynamicPropertiesMenuItem);
+        dynamicPropertiesMenuItem.click();
+
+        Wait<WebDriver> wait = new WebDriverWait(driver, Duration.ofSeconds(6));
+        WebElement colorChangeButton = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id(COLOR_CHANGE_BUTTON)));
+        wait.until(ExpectedConditions.attributeToBe(colorChangeButton, "class", COLOR_CHANGE_BUTTON_VALUE));
+        String changedColor = colorChangeButton.getCssValue("color");
+
+        assertEquals("rgba(220, 53, 69, 1)", changedColor);
     }
 
 }
