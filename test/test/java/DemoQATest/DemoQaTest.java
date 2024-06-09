@@ -1,5 +1,6 @@
 package DemoQATest;
 
+import com.demoqa.ConfigFileReader;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,13 +43,23 @@ public class DemoQaTest {
     private static final String VISIBLE_AFTER_BUTTON = "visibleAfter";
     private static final String COLOR_CHANGE_BUTTON = "colorChange";
     private static final String COLOR_CHANGE_BUTTON_VALUE = "mt-4 text-danger btn btn-primary";
+    private static final String FRAMES_BUTTON = "//li[@id='item-2' and contains(span, 'Frames')]";
+    private static final String SECOND_FRAME = "frame2";
+    private static final String SECOND_FRAME_TEXT = "sampleHeading";
+    private static final String FRAMES_HEADER = "text-center";
+    private static final String INTERACTION_CARD = "//div[@class='card-body']/h5[text()='Interactions']";
+    private static final String DROPPABLE_MENU_ITEM = "//li[@id='item-3']//span[text()='Droppable']";
+    private static final String DRAGGABLE = "draggable";
+    private static final String DROPPABLE = "droppable";
+    private static final String DROPPABLE_TEXT = "#droppable > p";
 
     WebDriver driver;
 
     @BeforeEach
     void setup() {
         driver = new ChromeDriver();
-        driver.get("https://demoqa.com/");
+        var configFileReader = new ConfigFileReader();
+        driver.get(configFileReader.getBaseUrl());
         driver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
         Dimension dm = new Dimension(1440, 1080);
         driver.manage().window().setSize(dm);
@@ -206,4 +217,48 @@ public class DemoQaTest {
         assertEquals("rgba(220, 53, 69, 1)", changedColor);
     }
 
+    @Test
+    void testFrame() {
+        WebElement elementsCard = driver.findElement(By.xpath(ELEMENTS_CARD));
+        elementsCard.click();
+
+        WebElement modalMenuItem = driver.findElement(By.xpath(MOADL_MENU_ITEM));
+
+        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", modalMenuItem);
+        modalMenuItem.click();
+
+        WebElement framesButton = driver.findElement(By.xpath(FRAMES_BUTTON));
+        framesButton.click();
+
+        WebElement iFrame = driver.findElement(By.id(SECOND_FRAME));
+        driver.switchTo().frame(iFrame);
+
+        WebElement frameText = driver.findElement(By.id(SECOND_FRAME_TEXT));
+        String actualText = frameText.getText();
+        assertEquals("This is a sample page", actualText);
+
+        driver.switchTo().defaultContent();
+        WebElement framePageHeader = driver.findElement(By.className(FRAMES_HEADER));
+        framePageHeader.isDisplayed();
+    }
+
+    @Test
+    void testDrugAndDrop() {
+        WebElement interactionsCard = driver.findElement(By.xpath(INTERACTION_CARD));
+        interactionsCard.click();
+
+        WebElement droppableMenuItem = driver.findElement(By.xpath(DROPPABLE_MENU_ITEM));
+        droppableMenuItem.click();
+
+        WebElement source = driver.findElement(By.id(DRAGGABLE));
+        WebElement target = driver.findElement(By.id(DROPPABLE));
+
+        new Actions(driver)
+                .dragAndDrop(source, target)
+                .perform();
+
+        WebElement droppableMessage = driver.findElement(By.cssSelector(DROPPABLE_TEXT));
+        String actualMessage = droppableMessage.getText();
+        assertEquals(actualMessage, "Dropped!");
+    }
 }
