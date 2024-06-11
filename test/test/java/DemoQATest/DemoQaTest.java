@@ -1,11 +1,11 @@
 package DemoQATest;
 
-import com.demoqa.ConfigFileReader;
-import org.junit.jupiter.api.AfterEach;
+import com.demoqa.ButtonsPage;
+import com.demoqa.MainPage;
+import com.demoqa.SliderMenuBar;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.*;
-import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Wait;
@@ -17,106 +17,71 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.openqa.selenium.support.ui.ExpectedConditions.textToBe;
 
-public class DemoQaTest {
+public class DemoQaTest extends BaseTest {
 
     private static final String START_STOP_BUTTON = "startStopButton";
-    private static final String DOUBLE_CLICK_MESSAGE = "doubleClickMessage";
     private static final String SHOW_SMALL_MODAL = "showSmallModal";
-    private static final String ELEMENTS_CARD = "//div[@class='card-body']/h5[text()='Elements']";
-    private static final String BUTTONS_MENU_ITEM = ("item-4");
-    private static final String DOUBLE_CLICK_BTN = "doubleClickBtn";
-    private static final String RIGHT_CLICK_BTN = "rightClickBtn";
-    private static final String RIGHT_CLICK_MESSAGE = "rightClickMessage";
-    private static final String MOADL_MENU_ITEM = "//div[@class='header-text' and contains(text(),'Alerts, Frame & Windows')]";
-    private static final String MOADL_DIALOGS_BUTTON = "//li[@id='item-4' and contains(span, 'Modal Dialogs')]";
     private static final String SMAL_MODAL_TEXT = "example-modal-sizes-title-sm";
     private static final String LARGE_MODAL = "showLargeModal";
     private static final String LARGE_MODAL_TEXT = "example-modal-sizes-title-lg";
-    private static final String RADIO_MENU_ITEM = ("item-2");
     private static final String YES_RADIO = "custom-control-label";
     private static final String YES_RADIO_MESSAGE = "text-success";
-    private static final String WIDGETS_CARD = "//div[@class='card-body']/h5[text()='Widgets']";
-    private static final String PROGRESS_BAR_MANU_ITEM = "//li[contains(@id, 'item-4')]//span[contains(text(), 'Progress Bar')]";
-    private static final String DYNAMIC_PROPERTIES_MENU_ITEM = "//li[contains(@id, 'item-8')]//span[contains(text(), 'Dynamic Properties')]";
     private static final String PROGRESS_BAR = "progressBar";
     private static final String RESET_BUTTON = "resetButton";
     private static final String VISIBLE_AFTER_BUTTON = "visibleAfter";
     private static final String COLOR_CHANGE_BUTTON = "colorChange";
     private static final String COLOR_CHANGE_BUTTON_VALUE = "mt-4 text-danger btn btn-primary";
-    private static final String FRAMES_BUTTON = "//li[@id='item-2' and contains(span, 'Frames')]";
     private static final String SECOND_FRAME = "frame2";
     private static final String SECOND_FRAME_TEXT = "sampleHeading";
     private static final String FRAMES_HEADER = "text-center";
-    private static final String INTERACTION_CARD = "//div[@class='card-body']/h5[text()='Interactions']";
-    private static final String DROPPABLE_MENU_ITEM = "//li[@id='item-3']//span[text()='Droppable']";
     private static final String DRAGGABLE = "draggable";
     private static final String DROPPABLE = "droppable";
     private static final String DROPPABLE_TEXT = "#droppable > p";
 
-    WebDriver driver;
+    ButtonsPage buttonPage;
+    MainPage mainPage;
+    SliderMenuBar sliderMenuBar;
 
     @BeforeEach
-    void setup() {
-        driver = new ChromeDriver();
-        var configFileReader = new ConfigFileReader();
-        driver.get(configFileReader.getBaseUrl());
-        driver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
-        Dimension dm = new Dimension(1440, 1080);
-        driver.manage().window().setSize(dm);
-    }
-
-    @AfterEach
-    void cleanup() {
-        driver.quit();
+    void precondition() {
+        driver.get(appProperties.getBaseUrl());
+        buttonPage = new ButtonsPage(driver);
+        mainPage = new MainPage(driver);
+        sliderMenuBar = new SliderMenuBar(driver);
     }
 
     @Test
     void testDoubleClickButton() {
-        WebElement elementsCard = driver.findElement(By.xpath(ELEMENTS_CARD));
-        elementsCard.click();
+        mainPage.clickElementsCard();
 
-        WebElement buttonsMenuItem = driver.findElement(By.id(BUTTONS_MENU_ITEM));
-        buttonsMenuItem.click();
+        sliderMenuBar.clickButtonMenuItem();
 
-        WebElement doubleClickButton = driver.findElement(By.id(DOUBLE_CLICK_BTN));
-        new Actions(driver)
-                .doubleClick(doubleClickButton)
-                .perform();
+        buttonPage.clickOnDoubleClickButton();
 
-        WebElement message = driver.findElement(By.id(DOUBLE_CLICK_MESSAGE));
-        String actualMessage = message.getText();
+        String actualMessage = buttonPage.getAfterDoubleClickMessage();
         assertEquals("You have done a double click", actualMessage);
     }
 
     @Test
     void testRightClick() {
-        WebElement elementsCard = driver.findElement(By.xpath(ELEMENTS_CARD));
-        elementsCard.click();
+        mainPage.clickElementsCard();
 
-        WebElement buttonsMenuItem = driver.findElement(By.id(BUTTONS_MENU_ITEM));
-        buttonsMenuItem.click();
+        sliderMenuBar.clickButtonMenuItem();
 
-        WebElement rightClickButton = driver.findElement(By.id(RIGHT_CLICK_BTN));
-        new Actions(driver)
-                .contextClick(rightClickButton)
-                .perform();
+        buttonPage.clickOnRightClickButton();
 
-        WebElement message = driver.findElement(By.id(RIGHT_CLICK_MESSAGE));
-        String actualMessage = message.getText();
+        buttonPage.getRightClickButtonMessage();
+        String actualMessage = buttonPage.getRightClickButtonMessage();
         assertEquals("You have done a right click", actualMessage);
     }
 
     @Test
     void testSmallModal() {
-        WebElement elementsCard = driver.findElement(By.xpath(ELEMENTS_CARD));
-        elementsCard.click();
+        mainPage.clickElementsCard();
 
-        WebElement modalMenuItem = driver.findElement(By.xpath(MOADL_MENU_ITEM));
-        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", modalMenuItem);
-        modalMenuItem.click();
+        sliderMenuBar.clickAlertMenuItem();
 
-        WebElement modalDialogs = driver.findElement(By.xpath(MOADL_DIALOGS_BUTTON));
-        modalDialogs.click();
+        sliderMenuBar.clickModalDialogsButton();
 
         WebElement smallModal = driver.findElement(By.id(SHOW_SMALL_MODAL));
         smallModal.click();
@@ -128,15 +93,11 @@ public class DemoQaTest {
 
     @Test
     void testLargeModal() {
-        WebElement elementsCard = driver.findElement(By.xpath(ELEMENTS_CARD));
-        elementsCard.click();
+        mainPage.clickElementsCard();
 
-        WebElement modalMenuItem = driver.findElement(By.xpath(MOADL_MENU_ITEM));
-        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", modalMenuItem);
-        modalMenuItem.click();
+        sliderMenuBar.clickAlertMenuItem();
 
-        WebElement modalDialogs = driver.findElement(By.xpath(MOADL_DIALOGS_BUTTON));
-        modalDialogs.click();
+        sliderMenuBar.clickModalDialogsButton();
 
         WebElement largeModal = driver.findElement(By.id(LARGE_MODAL));
         largeModal.click();
@@ -147,12 +108,10 @@ public class DemoQaTest {
     }
 
     @Test
-    void testRadioButton() throws InterruptedException {
-        WebElement elementCard = driver.findElement(By.xpath(ELEMENTS_CARD));
-        elementCard.click();
+    void testRadioButton() {
+        mainPage.clickElementsCard();
 
-        WebElement radioButtonMenuItem = driver.findElement(By.id(RADIO_MENU_ITEM));
-        radioButtonMenuItem.click();
+        sliderMenuBar.clickRadioMenuItem();
 
         WebElement yesRadio = driver.findElement(By.className(YES_RADIO));
         yesRadio.click();
@@ -165,13 +124,9 @@ public class DemoQaTest {
 
     @Test
     void testProgressBar() {
-        WebElement widgetsCard = driver.findElement(By.xpath(WIDGETS_CARD));
-        widgetsCard.click();
+        mainPage.clickWidgetCard();
 
-        WebElement progressBarMenuItem = driver.findElement(By.xpath(PROGRESS_BAR_MANU_ITEM));
-        JavascriptExecutor js = (JavascriptExecutor) driver;
-        js.executeScript("arguments[0].scrollIntoView(true)", progressBarMenuItem);
-        progressBarMenuItem.click();
+        sliderMenuBar.clickProgressBarMenuItem();
 
         WebElement startStopButton = driver.findElement(By.id(START_STOP_BUTTON));
         startStopButton.click();
@@ -185,13 +140,9 @@ public class DemoQaTest {
 
     @Test
     void testWaitButton() {
-        WebElement elementCard = driver.findElement(By.xpath(ELEMENTS_CARD));
-        elementCard.click();
+        mainPage.clickElementsCard();
 
-        WebElement dynamicPropertiesMenuItem = driver.findElement(By.xpath(DYNAMIC_PROPERTIES_MENU_ITEM));
-        JavascriptExecutor js = (JavascriptExecutor) driver;
-        js.executeScript("arguments[0].scrollIntoView(true)", dynamicPropertiesMenuItem);
-        dynamicPropertiesMenuItem.click();
+        sliderMenuBar.clickDynamicPropertiesMenuItem();
 
         Wait<WebDriver> wait = new WebDriverWait(driver, Duration.ofSeconds(6));
         WebElement visibilityAfterButton = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id(VISIBLE_AFTER_BUTTON)));
@@ -201,13 +152,9 @@ public class DemoQaTest {
 
     @Test
     void testColorChange() {
-        WebElement elementCard = driver.findElement(By.xpath(ELEMENTS_CARD));
-        elementCard.click();
+        mainPage.clickElementsCard();
 
-        WebElement dynamicPropertiesMenuItem = driver.findElement(By.xpath(DYNAMIC_PROPERTIES_MENU_ITEM));
-        JavascriptExecutor js = (JavascriptExecutor) driver;
-        js.executeScript("arguments[0].scrollIntoView(true)", dynamicPropertiesMenuItem);
-        dynamicPropertiesMenuItem.click();
+        sliderMenuBar.clickDynamicPropertiesMenuItem();
 
         Wait<WebDriver> wait = new WebDriverWait(driver, Duration.ofSeconds(6));
         WebElement colorChangeButton = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id(COLOR_CHANGE_BUTTON)));
@@ -219,16 +166,11 @@ public class DemoQaTest {
 
     @Test
     void testFrame() {
-        WebElement elementsCard = driver.findElement(By.xpath(ELEMENTS_CARD));
-        elementsCard.click();
+        mainPage.clickElementsCard();
 
-        WebElement modalMenuItem = driver.findElement(By.xpath(MOADL_MENU_ITEM));
+        sliderMenuBar.clickAlertMenuItem();
 
-        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", modalMenuItem);
-        modalMenuItem.click();
-
-        WebElement framesButton = driver.findElement(By.xpath(FRAMES_BUTTON));
-        framesButton.click();
+        sliderMenuBar.clickFramesMenuItem();
 
         WebElement iFrame = driver.findElement(By.id(SECOND_FRAME));
         driver.switchTo().frame(iFrame);
@@ -244,11 +186,9 @@ public class DemoQaTest {
 
     @Test
     void testDrugAndDrop() {
-        WebElement interactionsCard = driver.findElement(By.xpath(INTERACTION_CARD));
-        interactionsCard.click();
+        mainPage.clickInteractionCard();
 
-        WebElement droppableMenuItem = driver.findElement(By.xpath(DROPPABLE_MENU_ITEM));
-        droppableMenuItem.click();
+        sliderMenuBar.clickDroppableMenuItem();
 
         WebElement source = driver.findElement(By.id(DRAGGABLE));
         WebElement target = driver.findElement(By.id(DROPPABLE));
